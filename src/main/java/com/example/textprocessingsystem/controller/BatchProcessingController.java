@@ -1,0 +1,144 @@
+package com.example.textprocessingsystem.controller;
+import javafx.fxml.FXML;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class BatchProcessingController {
+
+    @FXML
+    private ListView<String> fileListView;
+
+    @FXML
+    private TextField regexField;
+
+    @FXML
+    private TextField replacementField;
+
+    @FXML
+    private TextArea resultTextArea;
+
+    @FXML
+    private Button addFilesButton;
+
+    @FXML
+    private Button processFilesButton;
+
+    @FXML
+    private Button saveResultsButton;
+
+    private MainController mainController;
+    private final List<File> files = new ArrayList<>();
+
+    /**
+     * Sets the main controller for status updates.
+     *
+     * @param mainController The main controller
+     */
+    public void setMainController(MainController mainController) {
+        this.mainController = mainController;
+    }
+
+    /**
+     * Handles adding files to the batch list.
+     */
+    @FXML
+    private void handleAddFiles() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Files for Batch Processing");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Text Files", "*.txt"),
+                new FileChooser.ExtensionFilter("All Files", "*.*")
+        );
+
+        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(null);
+        if (selectedFiles != null) {
+            files.addAll(selectedFiles);
+            for (File file : selectedFiles) {
+                fileListView.getItems().add(file.getName());
+            }
+            showStatus("Files added successfully.");
+        }
+    }
+
+    /**
+     * Handles processing files with the given regex and replacement.
+     */
+    @FXML
+    private void handleProcessFiles() {
+        String regex = regexField.getText();
+        String replacement = replacementField.getText();
+
+        if (regex.isEmpty()) {
+            showStatus("Regex pattern is required for processing.");
+            return;
+        }
+
+        StringBuilder results = new StringBuilder();
+        for (File file : files) {
+            try {
+                String content = readFile(file);
+                String processedContent = content.replaceAll(regex, replacement);
+                results.append("File: ").append(file.getName()).append("\n")
+                        .append(processedContent).append("\n\n");
+            } catch (IOException e) {
+                results.append("Error processing file ").append(file.getName()).append(": ").append(e.getMessage()).append("\n\n");
+            }
+        }
+
+        resultTextArea.setText(results.toString());
+        showStatus("Batch processing completed.");
+    }
+
+    /**
+     * Handles saving the results to a file.
+     */
+    @FXML
+    private void handleSaveResults() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Batch Results");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Text Files", "*.txt")
+        );
+
+        File file = fileChooser.showSaveDialog(null);
+        if (file != null) {
+            try {
+                writeFile(file, resultTextArea.getText());
+                showStatus("Results saved to " + file.getName());
+            } catch (IOException e) {
+                showStatus("Error saving results: " + e.getMessage());
+            }
+        }
+    }
+
+
+    private String readFile(File file) throws IOException {
+        StringBuilder content = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append("\n");
+            }
+        }
+        return content.toString();
+    }
+
+    private void writeFile(File file, String content) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write(content);
+        }
+    }
+
+    private void showStatus(String message) {
+        if (mainController != null) {
+            mainController.showStatus(message);
+        }
+    }
+}

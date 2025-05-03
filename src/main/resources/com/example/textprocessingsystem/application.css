@@ -1,0 +1,163 @@
+/* Fancy application styling with green accents */
+.root {
+    -fx-font-family: "Montserrat", "Segoe UI", Arial, sans-serif; /* Modern, clean font */
+    -fx-font-size: 14px; /* Slightly larger for better readability */
+    -fx-background-color: linear-gradient(to bottom right, #f0f0f0, #e0e0e0); /* Subtle gradient background */
+    -fx-padding: 10px; /* Add some overall padding */
+}
+
+.button {
+    -fx-background-color: linear-gradient(to bottom, #81c784, #4caf50); /* Green gradient button */
+    -fx-text-fill: white;
+    -fx-padding: 8px 16px; /* Slightly larger padding */
+    -fx-font-weight: bold; /* Make the text bold */
+    -fx-background-radius: 5px; /* Rounded corners */
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 2, 2); /* Subtle shadow */
+    -fx-transition: all 0.3s ease-in-out; /* Smooth transition for hover effect */
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(to bottom, #4caf50, #43a047); /* Darker green shade on hover */
+    -fx-scale-x: 1.05; /* Slightly scale up on hover */
+    -fx-scale-y: 1.05;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 7, 0, 3, 3); /* More prominent shadow on hover */
+}
+
+.text-area, .text-field {
+    -fx-border-color: #a0a0a0; /* Darker border */
+    -fx-border-radius: 5px; /* More rounded corners */
+    -fx-padding: 7px; /* Add some padding inside */
+    -fx-background-color: white; /* Ensure white background */
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.1), 3, 0, 1, 1); /* Subtle inner shadow */
+}
+
+.text-area:focused, .text-field:focused {
+    -fx-border-color: #4caf50; /* Green highlighted border on focus */
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 2, 2); /* More prominent inner shadow on focus */
+}
+
+.tab-pane {
+    -fx-tab-min-width: 100px; /* Slightly reduced minimum width */
+    -fx-border-color: #c0c0c0; /* Add a border to the tab pane */
+    -fx-border-radius: 5px;
+}
+
+.tab-header-background {
+    -fx-background-color: linear-gradient(to bottom, #f0f0f0, #d0d0d0); /* Subtle gradient for tab header */
+    -fx-border-color: transparent transparent #c0c0c0 transparent; /* Bottom border to separate from content */
+}
+
+.tab {
+    -fx-background-color: transparent; /* Make the tab background transparent initially */
+    -fx-border-color: transparent;
+    -fx-padding: 8px 15px;
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.tab:hover {
+    -fx-background-color: rgba(76, 175, 80, 0.1); /* Light green background on hover */
+    -fx-border-color: #4caf50; /* Green border on hover */
+    -fx-border-width: 0 0 2 0; /* Bottom border on hover */
+}
+
+.tab:selected {
+    -fx-background-color: #4caf50; /* Solid green background when selected */
+    -fx-border-color: #4caf50;
+    -fx-border-width: 2 2 0 2; /* Border around the selected tab */
+    -fx-background-radius: 5px 5px 0 0; /* Rounded top corners for selected tab */
+}
+
+.tab:selected .tab-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold; /* Make selected tab label bold */
+}
+
+.tab .tab-label {
+    -fx-text-fill: #555555; /* Default tab label color */
+    -fx-font-weight: normal;
+}
+
+/* Fancy style for the status label */
+#statusLabel {
+    -fx-font-style: italic;
+    -fx-text-fill: #777777; /* Slightly lighter text */
+    -fx-font-size: 12px; /* Slightly smaller font */
+    -fx-opacity: 0.8; /* Slightly transparent */
+}
+
+
+/* Fancy Batch Processing View Styling */
+.vbox {
+    -fx-spacing: 15px; /* Increased spacing */
+    -fx-padding: 15px; /* Increased padding */
+    -fx-background-color: linear-gradient(to bottom right, #f8f8f8, #e8e8e8); /* Lighter gradient */
+}
+
+.label {
+    -fx-font-size: 16px; /* Slightly larger font for labels */
+    -fx-text-fill: #333333;
+}
+
+.label:first-child {
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-padding: 0 0 10 0; /* Add some bottom padding to the main title */
+}
+
+.hbox {
+    -fx-spacing: 10px;
+    -fx-alignment: center-left; /* Maintain alignment */
+}
+
+.button {
+    -fx-background-color: linear-gradient(to bottom, #a5d6a7, #4caf50); /* Green gradient button */
+    -fx-text-fill: white;
+    -fx-padding: 10px 20px; /* More padding */
+    -fx-font-weight: bold;
+    -fx-background-radius: 7px; /* More rounded corners */
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 5, 0, 2, 2); /* Subtle shadow */
+    -fx-transition: all 0.3s ease-in-out;
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(to bottom, #4caf50, #388e3c); /* Darker green on hover */
+    -fx-scale-x: 1.03;
+    -fx-scale-y: 1.03;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 7, 0, 3, 3);
+}
+
+.list-view {
+    -fx-border-color: #a0a0a0;
+    -fx-border-radius: 7px;
+    -fx-padding: 5px;
+    -fx-background-color: white;
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.08), 3, 0, 1, 1);
+}
+
+.text-field {
+    -fx-border-color: #a0a0a0;
+    -fx-border-radius: 7px;
+    -fx-padding: 8px;
+    -fx-background-color: white;
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.08), 3, 0, 1, 1);
+}
+
+.text-field:focused {
+    -fx-border-color: #4caf50; /* Green focus border */
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.15), 5, 0, 2, 2);
+}
+
+.text-area {
+    -fx-border-color: #a0a0a0;
+    -fx-border-radius: 7px;
+    -fx-padding: 8px;
+    -fx-background-color: white;
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.08), 3, 0, 1, 1);
+}
+
+.text-area:focused {
+    -fx-border-color: #4caf50; /* Green focus border */
+    -fx-effect: innershadow(three-pass-box, rgba(0,0,0,0.15), 5, 0, 2, 2);
+}

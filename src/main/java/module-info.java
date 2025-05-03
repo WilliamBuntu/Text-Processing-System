@@ -10,4 +10,6 @@ module com.example.textprocessingsystem {
 
     opens com.example.textprocessingsystem to javafx.fxml;
     exports com.example.textprocessingsystem;
+    exports com.example.textprocessingsystem.controller;
+    opens com.example.textprocessingsystem.controller to javafx.fxml;
 }
