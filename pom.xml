@@ -108,7 +108,7 @@
                         <id>default-cli</id>
                         <configuration>
                             <mainClass>
-                                com.example.textprocessingsystem/com.example.textprocessingsystem.HelloApplication
+                                com.example.textprocessingsystem/com.example.textprocessingsystem.TextProcessingApplication
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
