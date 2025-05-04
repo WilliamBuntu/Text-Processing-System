@@ -1,9 +1,8 @@
 package com.example.textprocessingsystem.controller;
+import com.example.textprocessingsystem.analysisPackage.BatchProcessor;
+import com.example.textprocessingsystem.utils.GlobalAlert;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 
 import java.io.*;
@@ -32,6 +31,8 @@ public class BatchProcessingController {
 
     @FXML
     private Button saveResultsButton;
+    @FXML
+    private Button batchFindReplaceButton;
 
     private MainController mainController;
     private final List<File> files = new ArrayList<>();
@@ -118,6 +119,71 @@ public class BatchProcessingController {
         }
     }
 
+    @FXML
+    private void handleBatchFindReplace() {
+        if (files.isEmpty()) {
+            GlobalAlert.showAlert( Alert.AlertType.INFORMATION, "No files selected", "Please add files to process.");
+            showStatus("No files selected for batch processing.");
+            return;
+        }
+
+        String regex = regexField.getText();
+        String replacement = replacementField.getText();
+
+        if (regex.isEmpty()) {
+            GlobalAlert.showAlert( Alert.AlertType.INFORMATION, "Regex pattern required", "Please enter a regex pattern.");
+            showStatus("Regex pattern is required for find and replace operation.");
+            return;
+        }
+
+        // Create directory chooser for output files
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Output Directory", "*.txt");
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Output Directory");
+
+        // Use DirectoryChooser instead since FileChooser can't select directories
+        File outputDir = new File(System.getProperty("user.home"));
+        try {
+            // Initialize batch processor
+            BatchProcessor batchProcessor = new BatchProcessor();
+
+            // Show progress in result area
+            resultTextArea.clear();
+            resultTextArea.appendText("Starting batch find and replace...\n");
+
+            // Process the files
+            BatchProcessor.BatchResult result = batchProcessor.batchFindReplace(
+                    files,
+                    outputDir,
+                    regex,
+                    replacement,
+                    progress -> {
+                        // Update UI with progress information
+                        String progressMsg = String.format("Processed %d/%d files. %s",
+                                progress.getCompleted(), progress.getTotal(), progress.getMessage());
+
+                        // Update UI on JavaFX thread
+                        javafx.application.Platform.runLater(() -> {
+                            resultTextArea.appendText(progressMsg + "\n");
+                            showStatus(progressMsg);
+                        });
+                    }
+            );
+
+            // Show final results
+            javafx.application.Platform.runLater(() -> {
+                resultTextArea.appendText("\n--- COMPLETED ---\n");
+                resultTextArea.appendText(result.toString() + "\n");
+                resultTextArea.appendText("Files saved to: " + outputDir.getAbsolutePath() + "\n");
+                showStatus("Batch find and replace completed. " +
+                        result.getSuccessCount() + " files processed successfully.");
+            });
+
+        } catch (Exception e) {
+            showStatus("Error during batch processing: " + e.getMessage());
+            resultTextArea.appendText("ERROR: " + e.getMessage() + "\n");
+        }
+    }
 
     private String readFile(File file) throws IOException {
         StringBuilder content = new StringBuilder();

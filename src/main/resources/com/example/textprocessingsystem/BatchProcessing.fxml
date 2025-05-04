@@ -39,6 +39,10 @@
     <HBox spacing="10">
         <Button fx:id="processFilesButton" text="Process Files" onAction="#handleProcessFiles" />
         <Button fx:id="saveResultsButton" text="Save Results" onAction="#handleSaveResults" />
+        <Button fx:id="batchFindReplaceButton"
+                text="Batch Find &amp; Replace"
+                onAction="#handleBatchFindReplace"
+                styleClass="process-button"/>
     </HBox>
 
     <Label text="Processing Results:"/>

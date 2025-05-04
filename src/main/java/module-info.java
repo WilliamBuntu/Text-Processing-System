@@ -7,6 +7,8 @@ module com.example.textprocessingsystem {
     requires net.synedra.validatorfx;
     requires org.kordamp.bootstrapfx.core;
     requires com.almasb.fxgl.all;
+    requires java.logging;
+    requires annotations;
 
     opens com.example.textprocessingsystem to javafx.fxml;
     exports com.example.textprocessingsystem;
