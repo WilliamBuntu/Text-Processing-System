@@ -5,45 +5,46 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.textprocessingsystem.controller.AnalysisViewController"
-      spacing="10">
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.textprocessingsystem.controller.AnalysisViewController">
     <padding>
-        <Insets top="10.0" right="10.0" bottom="10.0" left="10.0"/>
+        <Insets top="15.0" right="15.0" bottom="15.0" left="15.0"/>
     </padding>
 
-    <Label text="Text Analysis" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+    <top>
+        <VBox spacing="10">
+            <Label text="Text Analysis" style="-fx-font-weight: bold; -fx-font-size: 18px;"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Optional Pattern:" />
+                <TextField fx:id="patternField" promptText="Enter pattern for specific analysis" HBox.hgrow="ALWAYS"/>
+            </HBox>
+            <HBox spacing="10">
+                <Button fx:id="analyzeWordFrequencyButton" text="Word Frequency" onAction="#handleAnalyzeWordFrequency" />
+                <Button fx:id="analyzePatternFrequencyButton" text="Pattern Frequency" onAction="#handleAnalyzePatternFrequency" />
+                <Button fx:id="generateSummaryButton" text="Generate Summary" onAction="#handleGenerateSummary" />
+                <Button fx:id="analyzeCharacterDistributionButton" text="Character Distribution" onAction="#analyzeCharacterDistribution"/>
+                <Button fx:id="analyzeLineLengthButton" text="Line Length" onAction="#analyzeLineLength"/>
+                <Button fx:id="analyzeCommonPatternsButton" text="Common Patterns" onAction="#analyzeCommonPatterns"/>
+            </HBox>
+        </VBox>
+    </top>
 
-    <Label text="Input Text:"/>
-    <TextArea fx:id="inputTextArea" prefHeight="200.0" promptText="Enter text for analysis"/>
+    <center>
+        <VBox spacing="15">
+            <Label text="Input Text:"/>
+            <TextArea fx:id="inputTextArea" prefHeight="200.0" promptText="Enter text for analysis" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </center>
 
-    <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="Pattern:" />
-        <TextField fx:id="patternField" promptText="Optional pattern for analysis" HBox.hgrow="ALWAYS"/>
-    </HBox>
-
-    <HBox spacing="10">
-        <Button fx:id="analyzeWordFrequencyButton" text="Analyze Word Frequency" onAction="#handleAnalyzeWordFrequency" />
-        <Button fx:id="analyzePatternFrequencyButton" text="Analyze Pattern Frequency" onAction="#handleAnalyzePatternFrequency" />
-        <Button fx:id="generateSummaryButton" text="Generate Summary" onAction="#handleGenerateSummary" />
-<!--        <Button fx:id="loadFileButton" text="Load File" onAction="#handleLoadFile"/>-->
-<!--        <Button fx:id="saveResultsButton" text="Save Results" onAction="#handleSaveResults"/>-->
-        <Button fx:id="analyzeCharacterDistributionButton" text="Character Distribution" onAction="#analyzeCharacterDistribution"/>
-        <Button fx:id="analyzeLineLengthButton"
-                text="Analyze Line Length"
-                onAction="#analyzeLineLength"
-                styleClass="analyze-button"/>
-        <Button fx:id="analyzeCommonPatternsButton"
-                text="Analyze Common Patterns"
-                onAction="#analyzeCommonPatterns"
-                styleClass="analyze-button"/>
-
-    </HBox>
-
-    <Label text="Analysis Results:"/>
-    <TextArea fx:id="resultTextArea" prefHeight="200.0" promptText="Results will appear here" editable="false"/>
-</VBox>
+    <bottom>
+        <VBox spacing="10">
+            <Label text="Analysis Results:"/>
+            <TextArea fx:id="resultTextArea" prefHeight="200.0" promptText="Results will appear here" editable="false" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </bottom>
+</BorderPane>

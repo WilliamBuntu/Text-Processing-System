@@ -48,9 +48,11 @@ public class RegexProcessor {
      * @throws PatternSyntaxException If the regex pattern is invalid
      */
     public String replaceAll(String text, String regex, String replacement) throws PatternSyntaxException {
+
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(text);
         return matcher.replaceAll(replacement);
+
     }
 
     /**
