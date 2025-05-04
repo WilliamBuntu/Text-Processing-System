@@ -69,7 +69,7 @@ public class DataAnalyzer {
                 .mapToDouble(String::length)
                 .summaryStatistics();
 
-        // Calculate distribution of line lengths
+        // Calculate the distribution of line lengths
         int[] distribution = new int[10]; // 0-9, 10-19, ..., 90+
         Arrays.stream(lines).forEach(line -> {
             int length = line.length();

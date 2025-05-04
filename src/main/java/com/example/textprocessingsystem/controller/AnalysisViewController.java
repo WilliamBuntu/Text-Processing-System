@@ -1,12 +1,17 @@
 package com.example.textprocessingsystem.controller;
 
-
+import com.example.textprocessingsystem.analysisPackage.DataAnalyzer;
+import com.example.textprocessingsystem.utils.ErrorHandler;
+import com.example.textprocessingsystem.utils.GlobalAlert;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
- import java.util.HashMap;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import      java.util.Map;
 import java.util.function.Function;
@@ -36,6 +41,10 @@ public class AnalysisViewController {
     private Button generateSummaryButton;
     @FXML
     private Button analyzeCharacterDistributionButton;
+    @FXML
+    private Button analyzeLineLengthButton;
+    @FXML
+    private Button analyzeCommonPatternsButton;
 
     private MainController mainController;
 
@@ -57,12 +66,23 @@ public class AnalysisViewController {
     private void handleAnalyzeWordFrequency() {
         String text = inputTextArea.getText();
         if (text.isEmpty()) {
+            GlobalAlert.showAlert(Alert.AlertType.WARNING, "Input Required", "Please enter text for analysis.");
             showStatus("Input text is required for word frequency analysis.");
             return;
         }
+        try {
+            DataAnalyzer dataAnalyzer = new DataAnalyzer();
+            Map<String, Long> wordFrequencies = dataAnalyzer.analyzeWordFrequency(text);
+            StringBuilder result = new StringBuilder("Word Frequencies:\n");
+            wordFrequencies.forEach((word, count) -> result.append(word).append(": ").append(count).append("\n"));
+            resultTextArea.setText(result.toString());
 
-        String result = analyzeWordFrequencies(text);
-        resultTextArea.setText(result);
+        } catch (IllegalArgumentException e) {
+            ErrorHandler.handleException("Invalid input", e);
+        } catch (Exception e) {
+            ErrorHandler.handleException("An unexpected error occurred during analysis.", e);
+        }
+
         showStatus("Word frequency analysis completed.");
     }
 
@@ -75,6 +95,7 @@ public class AnalysisViewController {
         String pattern = patternField.getText();
 
         if (text.isEmpty() || pattern.isEmpty()) {
+            GlobalAlert.showAlert(Alert.AlertType.WARNING, "Input Required", "Please enter text and pattern for analysis.");
             showStatus("Input text and pattern are required for pattern frequency analysis.");
             return;
         }
@@ -89,8 +110,10 @@ public class AnalysisViewController {
      */
     @FXML
     private void handleGenerateSummary() {
+
         String text = inputTextArea.getText();
         if (text.isEmpty()) {
+            GlobalAlert.showAlert( Alert.AlertType.WARNING, "Input Required", "Please enter text for summary generation.");
             showStatus("Input text is required for generating a summary.");
             return;
         }
@@ -100,27 +123,7 @@ public class AnalysisViewController {
         showStatus("Text summary generated.");
     }
 
-    /**
-     * Analyzes word frequencies in the given text.
-     *
-     * @param text The input text
-     * @return A formatted string of word frequencies
-     */
-    private String analyzeWordFrequencies(String text) {
-        // Example logic for word frequency analysis
-        String[] words = text.split("\\s+");
-        Map<String, Integer> wordCounts = new HashMap<>();
 
-        for (String word : words) {
-            word = word.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
-            wordCounts.put(word, wordCounts.getOrDefault(word, 0) + 1);
-        }
-
-        StringBuilder result = new StringBuilder("Word Frequencies:\n");
-        wordCounts.forEach((word, count) -> result.append(word).append(": ").append(count).append("\n"));
-
-        return result.toString();
-    }
 
     /**
      * Analyzes pattern frequencies in the given text.
@@ -130,6 +133,11 @@ public class AnalysisViewController {
      * @return A formatted string of pattern frequencies
      */
     private String analyzePatternFrequencies(String text, String pattern) {
+        if (text.isEmpty() || pattern.isEmpty()) {
+            GlobalAlert.showAlert(Alert.AlertType.WARNING, "Input Required", "Please enter text and pattern for analysis.");
+            showStatus("Input text and pattern are required for pattern frequency analysis.");
+            return "";
+        }
         try {
             Pattern compiledPattern = Pattern.compile(pattern);
             Matcher matcher = compiledPattern.matcher(text);
@@ -177,40 +185,107 @@ public class AnalysisViewController {
     /**
      * Analyzes character distribution in the given text.
      *
-     * @param text The input text
+     * @param actionEvent The input text
      * @return A formatted string of character distribution
      */
     @FXML
-public void analyzeCharacterDistribution(ActionEvent actionEvent) {
-    String text = inputTextArea.getText();
-    if (text.isEmpty()) {
-        showStatus("Input text is required for character distribution analysis.");
-        return;
+    public void analyzeCharacterDistribution(ActionEvent actionEvent) {
+         try {
+
+            String text = inputTextArea.getText();
+            if (text.isEmpty()) {
+                GlobalAlert.showAlert(Alert.AlertType.WARNING, "Input Required", "Please enter text for analysis.");
+
+                showStatus("Input text is required for character distribution analysis.");
+                return;
+            }
+            // Use DataAnalyzer to analyze character distribution
+             final var result = getStringBuilder(text);
+
+            resultTextArea.setText(result.toString());
+            showStatus("Character distribution analysis completed.");
+        }catch (IllegalArgumentException e) {
+            ErrorHandler.handleException("Invalid input", e);
+        }catch (Exception e) {
+            ErrorHandler.handleException("An unexpected error occurred during analysis.", e);
+        }
+
     }
 
-    // Count character frequencies using streams
-    Map<Character, Long> charFreq = text.chars()
-            .mapToObj(c -> (char) c)
-            .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+    @NotNull
+    private static StringBuilder getStringBuilder(String text) {
+        DataAnalyzer dataAnalyzer = new DataAnalyzer();
+        Map<Character, Long> charFrequencies = dataAnalyzer.analyzeCharacterDistribution(text);
+        // Format the result
 
-    // Sort by frequency (descending)
-    Map<Character, Long> sortedFreq = charFreq.entrySet().stream()
-            .sorted(Map.Entry.<Character, Long>comparingByValue().reversed())
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                Map.Entry::getValue,
-                (e1, e2) -> e1,
-                LinkedHashMap::new
-            ));
+        StringBuilder result = new StringBuilder("Character Distribution:\n");
+        charFrequencies.forEach((character, count) -> {
+            String displayChar = character == ' ' ? "Space" : character == '\n' ? "Newline" : character.toString();
+            result.append(displayChar).append(": ").append(count).append("\n");
+        });
+        return result;
+    }
 
-    // Build result string
-    StringBuilder result = new StringBuilder("Character Distribution:\n");
-    sortedFreq.forEach((character, count) -> {
-        String displayChar = character == ' ' ? "SPACE" : character == '\n' ? "NEWLINE" : character.toString();
-        result.append(displayChar).append(": ").append(count).append("\n");
-    });
+    @FXML
+    public void analyzeLineLength(ActionEvent actionEvent) {
+        try {
+            String text = inputTextArea.getText();
+            if (text.isEmpty()) {
+                GlobalAlert.showAlert(Alert.AlertType.WARNING, "Input Required", "Please enter text for analysis.");
+                showStatus("Input text is required for line length analysis.");
+                return;
+            }
 
-    resultTextArea.setText(result.toString());
-    showStatus("Character distribution analysis completed.");
-}
+            // Use DataAnalyzer to analyze line lengths
+            DataAnalyzer dataAnalyzer = new DataAnalyzer();
+            DataAnalyzer.LineStatistics lineStats = dataAnalyzer.analyzeLineLength(text);
+
+            // The LineStatistics class already has a toString() method that formats the results nicely
+            resultTextArea.setText(lineStats.toString());
+            showStatus("Line length analysis completed.");
+        } catch (IllegalArgumentException e) {
+            ErrorHandler.handleException("Invalid input", e);
+        } catch (Exception e) {
+            ErrorHandler.handleException("An unexpected error occurred during analysis.", e);
+        }
+    }
+
+
+
+    /**
+     * Analyzes common patterns in the given text.
+     *
+     * @param actionEvent The input text
+     * @return A formatted string of common patterns
+     */
+    @FXML
+    public void analyzeCommonPatterns(ActionEvent actionEvent) {
+        try {
+            String text = inputTextArea.getText();
+            if (text.isEmpty()) {
+                GlobalAlert.showAlert(Alert.AlertType.WARNING, "Input Required", "Please enter text for analysis.");
+                showStatus("Input text is required for common patterns analysis.");
+                return;
+            }
+
+            // Use DataAnalyzer to analyze common patterns
+            DataAnalyzer dataAnalyzer = new DataAnalyzer();
+            Map<String, DataAnalyzer.PatternStatistics> patternStats = dataAnalyzer.analyzeCommonPatterns(text);
+
+            // Format the results
+            StringBuilder result = new StringBuilder("Common Patterns Analysis:\n\n");
+            patternStats.forEach((patternName, stats) -> {
+                result.append("=== ").append(patternName).append(" ===\n");
+                result.append(stats.toString()).append("\n");
+            });
+
+            resultTextArea.setText(result.toString());
+            showStatus("Common patterns analysis completed.");
+        } catch (IllegalArgumentException e) {
+            ErrorHandler.handleException("Invalid input", e);
+        } catch (Exception e) {
+            ErrorHandler.handleException("An unexpected error occurred during analysis.", e);
+        }
+    }
+
 }

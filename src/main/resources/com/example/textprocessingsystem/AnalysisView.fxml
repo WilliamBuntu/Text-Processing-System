@@ -33,6 +33,14 @@
 <!--        <Button fx:id="loadFileButton" text="Load File" onAction="#handleLoadFile"/>-->
 <!--        <Button fx:id="saveResultsButton" text="Save Results" onAction="#handleSaveResults"/>-->
         <Button fx:id="analyzeCharacterDistributionButton" text="Character Distribution" onAction="#analyzeCharacterDistribution"/>
+        <Button fx:id="analyzeLineLengthButton"
+                text="Analyze Line Length"
+                onAction="#analyzeLineLength"
+                styleClass="analyze-button"/>
+        <Button fx:id="analyzeCommonPatternsButton"
+                text="Analyze Common Patterns"
+                onAction="#analyzeCommonPatterns"
+                styleClass="analyze-button"/>
 
     </HBox>
 
