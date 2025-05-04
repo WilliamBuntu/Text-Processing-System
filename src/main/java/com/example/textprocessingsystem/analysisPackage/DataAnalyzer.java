@@ -62,6 +62,7 @@ public class DataAnalyzer {
      * @return A LineStatistics object containing the statistics
      */
     public LineStatistics analyzeLineLength(String text) {
+
         String[] lines = text.split("\n");
 
         // Using DoubleSummaryStatistics to compute statistics in one pass
