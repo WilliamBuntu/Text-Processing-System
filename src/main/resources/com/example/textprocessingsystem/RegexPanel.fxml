@@ -6,6 +6,9 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.text.TextFlow?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.textprocessingsystem.controller.RegexPanelController"
@@ -21,7 +24,13 @@
             <TextArea fx:id="inputTextArea" prefHeight="200" VBox.vgrow="ALWAYS"/>
 
             <Label text="Results:"/>
-            <TextArea fx:id="resultTextArea" prefHeight="200" editable="false" VBox.vgrow="ALWAYS"/>
+            <StackPane prefHeight="200" VBox.vgrow="ALWAYS">
+<!--                <TextArea fx:id="resultTextArea" editable="false" visible="false" styleClass="result-flow"/>-->
+                <ScrollPane fitToWidth="true">
+                    <TextFlow fx:id="resultTextArea" styleClass="result-flow"/>
+                </ScrollPane>
+            </StackPane>
+<!--            <TextArea fx:id="resultTextArea"  styleClass="result-flow" prefHeight="200" editable="false" VBox.vgrow="ALWAYS"/>-->
         </VBox>
     </left>
 

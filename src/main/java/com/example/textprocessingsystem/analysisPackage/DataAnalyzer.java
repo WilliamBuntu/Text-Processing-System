@@ -1,4 +1,6 @@
 package com.example.textprocessingsystem.analysisPackage;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -153,62 +155,31 @@ public class DataAnalyzer {
     }
 
     /**
-     * Class representing statistics for line lengths.
-     */
-    public static class LineStatistics {
-        private final int lineCount;
-        private final double averageLength;
-        private final int minLength;
-        private final int maxLength;
-        private final int[] distribution;
+         * Class representing statistics for line lengths.
+         */
+        public record LineStatistics(int lineCount, double averageLength, int minLength, int maxLength,
+                                     int[] distribution) {
 
-        public LineStatistics(int lineCount, double averageLength, int minLength, int maxLength, int[] distribution) {
-            this.lineCount = lineCount;
-            this.averageLength = averageLength;
-            this.minLength = minLength;
-            this.maxLength = maxLength;
-            this.distribution = distribution;
-        }
-
-        public int getLineCount() {
-            return lineCount;
-        }
-
-        public double getAverageLength() {
-            return averageLength;
-        }
-
-        public int getMinLength() {
-            return minLength;
-        }
-
-        public int getMaxLength() {
-            return maxLength;
-        }
-
-        public int[] getDistribution() {
-            return distribution;
-        }
-
+        @NotNull
         @Override
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Line Statistics:\n");
-            sb.append(String.format("Total Lines: %d\n", lineCount));
-            sb.append(String.format("Average Length: %.2f characters\n", averageLength));
-            sb.append(String.format("Minimum Length: %d characters\n", minLength));
-            sb.append(String.format("Maximum Length: %d characters\n", maxLength));
+            public String toString() {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Line Statistics:\n");
+                sb.append(String.format("Total Lines: %d\n", lineCount));
+                sb.append(String.format("Average Length: %.2f characters\n", averageLength));
+                sb.append(String.format("Minimum Length: %d characters\n", minLength));
+                sb.append(String.format("Maximum Length: %d characters\n", maxLength));
 
-            sb.append("\nLength Distribution:\n");
-            for (int i = 0; i < 9; i++) {
-                sb.append(String.format("%d-%d chars: %d lines\n",
-                        i * 10, (i + 1) * 10 - 1, distribution[i]));
+                sb.append("\nLength Distribution:\n");
+                for (int i = 0; i < 9; i++) {
+                    sb.append(String.format("%d-%d chars: %d lines\n",
+                            i * 10, (i + 1) * 10 - 1, distribution[i]));
+                }
+                sb.append(String.format("90+ chars: %d lines\n", distribution[9]));
+
+                return sb.toString();
             }
-            sb.append(String.format("90+ chars: %d lines\n", distribution[9]));
-
-            return sb.toString();
         }
-    }
 
     /**
      * Class representing statistics for pattern occurrences.

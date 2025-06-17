@@ -4,12 +4,15 @@ import com.example.textprocessingsystem.utils.GlobalAlert;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BatchProcessingController {
+    private static final Logger logger = Logger.getLogger(BatchProcessingController.class.getName());
 
     @FXML
     private ListView<String> fileListView;
@@ -43,6 +46,7 @@ public class BatchProcessingController {
      * @param mainController The main controller
      */
     public void setMainController(MainController mainController) {
+
         this.mainController = mainController;
     }
 
@@ -77,6 +81,8 @@ public class BatchProcessingController {
         String replacement = replacementField.getText();
 
         if (regex.isEmpty()) {
+            GlobalAlert.showAlert( Alert.AlertType.INFORMATION, "Regex pattern required", "Please enter a regex pattern.");
+            logger.warning("Regex pattern is empty.");
             showStatus("Regex pattern is required for processing.");
             return;
         }
@@ -88,12 +94,16 @@ public class BatchProcessingController {
                 String processedContent = content.replaceAll(regex, replacement);
                 results.append("File: ").append(file.getName()).append("\n")
                         .append(processedContent).append("\n\n");
+                logger.info("File processed successfully: " + file.getName());
             } catch (IOException e) {
-                results.append("Error processing file ").append(file.getName()).append(": ").append(e.getMessage()).append("\n\n");
+                String errorMessage = "Error processing file " + file.getName() + ": " + e.getMessage();
+                results.append(errorMessage).append("\n\n");
+                logger.log(Level.SEVERE, errorMessage, e);
             }
         }
 
         resultTextArea.setText(results.toString());
+        logger.info("Batch processing completed.");
         showStatus("Batch processing completed.");
     }
 
@@ -112,8 +122,10 @@ public class BatchProcessingController {
         if (file != null) {
             try {
                 writeFile(file, resultTextArea.getText());
+                logger.info("Results saved to file: " + file.getName());
                 showStatus("Results saved to " + file.getName());
             } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error saving results: " + e.getMessage(), e);
                 showStatus("Error saving results: " + e.getMessage());
             }
         }
@@ -123,6 +135,7 @@ public class BatchProcessingController {
     private void handleBatchFindReplace() {
         if (files.isEmpty()) {
             GlobalAlert.showAlert( Alert.AlertType.INFORMATION, "No files selected", "Please add files to process.");
+            logger.warning("No files selected for batch processing.");
             showStatus("No files selected for batch processing.");
             return;
         }
@@ -132,6 +145,7 @@ public class BatchProcessingController {
 
         if (regex.isEmpty()) {
             GlobalAlert.showAlert( Alert.AlertType.INFORMATION, "Regex pattern required", "Please enter a regex pattern.");
+            logger.warning("Regex pattern is empty.");
             showStatus("Regex pattern is required for find and replace operation.");
             return;
         }
@@ -147,7 +161,7 @@ public class BatchProcessingController {
             // Initialize batch processor
             BatchProcessor batchProcessor = new BatchProcessor();
 
-            // Show progress in result area
+            // Show progress in the result area
             resultTextArea.clear();
             resultTextArea.appendText("Starting batch find and replace...\n");
 
@@ -165,6 +179,7 @@ public class BatchProcessingController {
                         // Update UI on JavaFX thread
                         javafx.application.Platform.runLater(() -> {
                             resultTextArea.appendText(progressMsg + "\n");
+                            logger.info(progressMsg);
                             showStatus(progressMsg);
                         });
                     }
@@ -175,12 +190,14 @@ public class BatchProcessingController {
                 resultTextArea.appendText("\n--- COMPLETED ---\n");
                 resultTextArea.appendText(result.toString() + "\n");
                 resultTextArea.appendText("Files saved to: " + outputDir.getAbsolutePath() + "\n");
+                logger.info("Batch find and replace completed. " + result.getSuccessCount() + " files processed successfully.");
                 showStatus("Batch find and replace completed. " +
                         result.getSuccessCount() + " files processed successfully.");
             });
 
         } catch (Exception e) {
             showStatus("Error during batch processing: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error during batch processing: " + e.getMessage(), e);
             resultTextArea.appendText("ERROR: " + e.getMessage() + "\n");
         }
     }

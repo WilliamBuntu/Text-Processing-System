@@ -3,6 +3,7 @@ package com.example.textprocessingsystem.controller;
 import com.example.textprocessingsystem.regex.RegexProcessor;
 import com.example.textprocessingsystem.utils.ErrorHandler;
 import com.example.textprocessingsystem.utils.GlobalAlert;
+import com.example.textprocessingsystem.utils.CustomLogger;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -12,14 +13,25 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import java.io.*;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import javafx.scene.Node;
+import javafx.scene.text.TextFlow;
+import javafx.scene.text.Text;
+import javafx.scene.paint.Color;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Comparator;
 
 public class RegexPanelController {
+    private static final Logger logger = CustomLogger.createLogger(RegexPanelController.class.getName());
+
 
     @FXML private TextArea inputTextArea;
-    @FXML private TextArea resultTextArea;
+    ;
     @FXML private TextField regexField;
     @FXML private TextField replacementField;
     @FXML private Button searchButton;
@@ -29,6 +41,7 @@ public class RegexPanelController {
     @FXML private Button splitButton;
     @FXML private Button matchesButton;
 @FXML private Button replaceFirstButton;
+@FXML private TextFlow resultTextArea;
     private MainController mainController;
     RegexProcessor regexProcessor = new RegexProcessor();
 
@@ -42,38 +55,107 @@ public class RegexPanelController {
     /**
      * Handles the search button action.
      */
+
+
     @FXML
     private void handleSearch() {
         String text = inputTextArea.getText();
         String regex = regexField.getText();
         validateRegex(regex);
+
         if (text.isEmpty() || regex.isEmpty()) {
-            GlobalAlert.showAlert( Alert.AlertType.INFORMATION, "Input Required", "Please enter both text and regex pattern.");
+            logger.warning("Input text and regex pattern are empty.");
+            GlobalAlert.showAlert(Alert.AlertType.INFORMATION, "Input Required", "Please enter both text and regex pattern.");
             showStatus("Input text and regex pattern are required");
             return;
         }
 
-
         try {
             List<RegexProcessor.Match> matches = regexProcessor.findMatches(text, regex);
+            resultTextArea.getChildren().clear();
 
             if (matches.isEmpty()) {
-                resultTextArea.setText("No matches found.");
+                Text noMatches = new Text("No matches found.");
+                noMatches.setFill(Color.RED);
+
+                resultTextArea.getChildren().add(noMatches);
             } else {
-                StringBuilder result = new StringBuilder("Matches found:\n\n");
+                // Add header text showing match count
+                Text header = new Text("Found " + matches.size() + " match(es):\n\n");
+
+                resultTextArea.getChildren().add(header);
+
+                // Sort matches by start position to process in sequence
+                matches.sort(Comparator.comparing(RegexProcessor.Match::getStart));
+
+                int lastIndex = 0;
                 for (RegexProcessor.Match match : matches) {
-                    result.append(match.toString()).append("\n");
+                    int start = match.getStart();
+                    int end = match.getEnd();
+
+                    // Add text before the match
+                    if (start > lastIndex) {
+                        Text beforeMatch = new Text(text.substring(lastIndex, start));
+                        resultTextArea.getChildren().add(beforeMatch);
+                    }
+
+                    // Add the highlighted match
+                    final var highlightedText = getHighlightedText(text, start, end);
+                    resultTextArea.getChildren().add(highlightedText);
+
+                    lastIndex = end;
                 }
-                resultTextArea.setText(result.toString());
+
+                // Add any remaining text after the last match
+                if (lastIndex < text.length()) {
+                    Text afterLastMatch = new Text(text.substring(lastIndex));
+                    resultTextArea.getChildren().add(afterLastMatch);
+                }
             }
 
+            logger.info("Find matches operation completed");
             showStatus("Find matches operation completed");
 
         } catch (PatternSyntaxException ex) {
+            logger.log(Level.SEVERE, "Invalid regex pattern: " + ex.getMessage(), ex);
             showStatus("Invalid regex pattern: " + ex.getMessage());
-            resultTextArea.setText("Error: " + ex.getMessage());
+            Text errorText = new Text("Error: " + ex.getMessage());
+            errorText.setFill(Color.RED);
+            resultTextArea.getChildren().clear();
+            resultTextArea.getChildren().add(errorText);
         }
     }
+
+    @NotNull
+    private static Text getHighlightedText(String text, int start, int end) {
+        Text highlightedText = new Text(text.substring(start, end));
+        highlightedText.setFill(Color.BLACK);
+        highlightedText.setStyle(   "-fx-background-color: #CCFFCC;" +  // Light green background
+                        "-fx-font-weight: bold;" +         // Bold text
+                        "-fx-font-style: italic;" +        // Italic text
+                        "-fx-font-size: 17px;" +           // Custom font size
+                        "-fx-border-color: #00AA00;" +     // Green border
+                        "-fx-border-width: 1px;" +
+                  "-fx-background-color: yellow;");        // Border width   );
+        return highlightedText;
+    }
+
+    private String getTextFlowContent() {
+        StringBuilder sb = new StringBuilder();
+        for (Node node : resultTextArea.getChildren()) {
+            if (node instanceof Text) {
+                sb.append(((Text) node).getText());
+            }
+        }
+        return sb.toString();
+    }
+
+    private void setTextFlowContent(String text) {
+        resultTextArea.getChildren().clear();
+        resultTextArea.getChildren().add(new Text(text));
+    }
+
+
 
     /**
      * Handles the replace button action.
@@ -86,6 +168,7 @@ public class RegexPanelController {
         validateRegex(regex);
 
         if (text.isEmpty() || regex.isEmpty()) {
+            logger.warning("Input text and regex pattern are empty.");
             GlobalAlert.showAlert( Alert.AlertType.INFORMATION, "Input Required", "Please enter text, regex pattern, and replacement string.");
             showStatus("Input text and regex pattern are required");
             return;
@@ -94,15 +177,18 @@ public class RegexPanelController {
         try {
             String result = regexProcessor.replaceAll(text, regex, replacement);
             if (result.isEmpty() || result.equals(text)) {
-                resultTextArea.setText("No matches found for you Regex hence No replacements made.");
+                setTextFlowContent("No matches found for you Regex hence No replacements made.");
+//                resultTextArea.getChildren().add(new Text("No matches found for you Regex hence No replacements made."));
             } else {
-                resultTextArea.setText(result);
+                setTextFlowContent(result);
             }
+            logger.info("Replace operation completed");
             showStatus("Replace operation completed");
 
         } catch (PatternSyntaxException ex) {
+            logger.log(Level.SEVERE, "Invalid regex pattern: " + ex.getMessage(), ex);
             showStatus("Invalid regex pattern: " + ex.getMessage());
-            resultTextArea.setText("Error: " + ex.getMessage());
+            resultTextArea.getChildren().add(new Text("Error: " + ex.getMessage()));
         }
     }
 
@@ -118,6 +204,7 @@ public class RegexPanelController {
         validateRegex(regex);
 
         if (text.isEmpty() || regex.isEmpty()) {
+            logger.warning("Input text and regex pattern are empty.");
             GlobalAlert.showAlert(Alert.AlertType.INFORMATION, "Input Required", "Please enter text, regex pattern, and replacement string.");
             showStatus("Input text and regex pattern are required.");
             return;
@@ -126,13 +213,15 @@ public class RegexPanelController {
         try {
             String result = regexProcessor.replaceFirst(text, regex, replacement);
             if (result.isEmpty() || result.equals(text)) {
-                resultTextArea.setText("No matches found for your Regex hence No replacements made.");
+                resultTextArea.getChildren().add(new Text("No matches found for you Regex hence No replacements made."));
             } else {
-                resultTextArea.setText(result);
+                setTextFlowContent(result);
+                logger.info("Replace first operation completed successfully.");
                 showStatus("Replace first operation completed successfully.");
             }
 
         } catch (PatternSyntaxException ex) {
+            logger.log(Level.SEVERE, "Invalid regex pattern: " + ex.getMessage(), ex);
             GlobalAlert.showAlert(Alert.AlertType.ERROR, "Invalid Regex", "The provided regex pattern is invalid: " + ex.getMessage());
             showStatus("Invalid regex pattern: " + ex.getMessage());
         }
@@ -146,6 +235,7 @@ public class RegexPanelController {
          validateRegex(regex);
 
          if (text.isEmpty() || regex.isEmpty()) {
+                logger.warning("Input text and regex pattern are empty.");
              GlobalAlert.showAlert(Alert.AlertType.INFORMATION, "Input Required", "Please enter both text and regex pattern.");
              showStatus("Input text and regex pattern are required.");
              return;
@@ -154,12 +244,14 @@ public class RegexPanelController {
          try {
              String[] result = regexProcessor.split(text, regex);
              if (result.length == 0) {
-                 resultTextArea.setText("No splits were made.");
+                 setTextFlowContent("No splits were made.");
              } else {
-                 resultTextArea.setText(String.join("\n\n\n", result));
+                 setTextFlowContent(String.join("\n\n\n", result));
              }
+                logger.info("Split operation completed successfully.");
              showStatus("Split operation completed successfully.");
          } catch (PatternSyntaxException ex) {
+                logger.log(Level.SEVERE, "Invalid regex pattern: " + ex.getMessage(), ex);
              GlobalAlert.showAlert(Alert.AlertType.ERROR, "Invalid Regex", "The provided regex pattern is invalid: " + ex.getMessage());
              showStatus("Invalid regex pattern: " + ex.getMessage());
          }
@@ -174,6 +266,7 @@ public class RegexPanelController {
          validateRegex(regex);
 
          if (text.isEmpty() || regex.isEmpty()) {
+             logger.warning("Input text and regex pattern are empty.");
              GlobalAlert.showAlert(Alert.AlertType.INFORMATION, "Input Required", "Please enter both text and regex pattern.");
              showStatus("Input text and regex pattern are required.");
              return;
@@ -182,12 +275,16 @@ public class RegexPanelController {
          try {
              boolean isMatch = regexProcessor.matches(text, regex);
              if (isMatch) {
-                 resultTextArea.setText("The entire text matches the regex pattern.");
+                 setTextFlowContent("The text matches the regex pattern.");
+//                 resultTextArea.getChildren().add(new Text("The text matches the regex pattern."));
              } else {
-                 resultTextArea.setText("The text does not match the regex pattern.");
+                    setTextFlowContent("The text does not match the regex pattern.");
+//                 resultTextArea.getChildren().add(new Text("The text does not match the regex pattern."));
              }
+             logger.info("Matches operation completed successfully.");
              showStatus("Matches operation completed successfully.");
          } catch (PatternSyntaxException ex) {
+             logger.log(Level.SEVERE, "Invalid regex pattern: " + ex.getMessage(), ex);
              GlobalAlert.showAlert(Alert.AlertType.ERROR, "Invalid Regex", "The provided regex pattern is invalid: " + ex.getMessage());
              showStatus("Invalid regex pattern: " + ex.getMessage());
          }
@@ -220,6 +317,7 @@ private void handleLoadFile() {
             String fileContent = loadFileTask.getValue();
             if (fileContent != null) {
                 inputTextArea.setText(fileContent);
+                logger.info("File loaded successfully");
                 showStatus("File loaded successfully");
             }
         });
@@ -233,7 +331,7 @@ private void handleLoadFile() {
         thread.setName("File Loader Thread");
         thread.start();
     } else {
-        System.out.println("No file selected");
+        logger.warning("No file selected");
     }
 }
 
@@ -252,13 +350,17 @@ private void handleLoadFile() {
         File file = fileChooser.showSaveDialog(null);
         if (file != null) {
             try {
-                writeFile(file, resultTextArea.getText());
+
+                String content = getTextFlowContent();
+                writeFile(file, content);
                 showStatus("Results saved to " + file.getName());
             } catch (IOException ex) {
                 showStatus("Error saving file: " + ex.getMessage());
             }
         }
     }
+
+
 
    private String loadFile(File file) {
        if (file == null) {
@@ -313,6 +415,7 @@ private void handleLoadFile() {
 
     private void validateRegex(String regex) {
         if (!regexProcessor.isValidRegex(regex)) {
+            logger.log(Level.SEVERE, "Invalid regex pattern: " + regex);
             GlobalAlert.showAlert(Alert.AlertType.ERROR, "Invalid Regex", "The provided regex pattern is invalid.");
             showStatus("Invalid regex pattern: " + regex);
         }}

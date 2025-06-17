@@ -3,14 +3,11 @@ package com.example.textprocessingsystem.controller;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.TabPane;
-
 import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
-    @FXML private TabPane tabPane;
     @FXML private Label statusLabel;
 
     @FXML private RegexPanelController regexPanelController;
@@ -25,12 +22,14 @@ public class MainController implements Initializable {
         }
 
         if (analysisViewController != null) {
+            System.out.println("Setting analysis view controller");
             analysisViewController.setMainController(this);
         }
 
         if (batchProcessingController != null) {
             batchProcessingController.setMainController(this);
         }
+
     }
 
     /**
@@ -38,6 +37,6 @@ public class MainController implements Initializable {
      * @param message The message to display
      */
     public void showStatus(String message) {
-        statusLabel.setText(message);
+        javafx.application.Platform.runLater(() -> statusLabel.setText(message));
     }
 }

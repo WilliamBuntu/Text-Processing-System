@@ -1,17 +1,23 @@
 package com.example.textprocessingsystem;
 
+import com.example.textprocessingsystem.controller.RegexPanelController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import java.io.IOException;
+import java.util.logging.Logger;
+
+import com.example.textprocessingsystem.utils.CustomLogger;
 
 /**
  * Main application class for the Text Processing System.
  * Loads the main UI from FXML and coordinates the application startup.
  */
 public class TextProcessingApplication extends Application {
+    private static final Logger logger = CustomLogger.createLogger(RegexPanelController.class.getName());
+
 
     @Override
     public void start(Stage primaryStage) {
@@ -33,12 +39,12 @@ public class TextProcessingApplication extends Application {
 
 
             // Log application startup
-            System.out.println("Application started successfully");
+            logger.info("Application started successfully");
         } catch (IOException e) {
-            System.err.println("Failed to load application UI");
+            logger.severe("Failed to load application UI");
             e.printStackTrace();
         } catch (Exception e) {
-            System.err.println("Unexpected error during application startup");
+            logger.severe("Unexpected error during application startup");
             e.printStackTrace();
         }
     }

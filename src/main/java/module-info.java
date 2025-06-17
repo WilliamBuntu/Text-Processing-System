@@ -9,6 +9,10 @@ module com.example.textprocessingsystem {
     requires com.almasb.fxgl.all;
     requires java.logging;
     requires annotations;
+    requires api;
+    requires service;
+    requires okhttp3;
+    requires org.json;
 
     opens com.example.textprocessingsystem to javafx.fxml;
     exports com.example.textprocessingsystem;
