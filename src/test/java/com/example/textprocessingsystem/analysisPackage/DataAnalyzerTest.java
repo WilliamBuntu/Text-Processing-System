@@ -37,10 +37,10 @@ class DataAnalyzerTest {
     String text = "line one\nline two\nline three";
     DataAnalyzer.LineStatistics stats = dataAnalyzer.analyzeLineLength(text);
 
-    assertEquals(3, stats.getLineCount());
-    assertEquals(8.67, stats.getAverageLength(), 0.01);
-    assertEquals(8, stats.getMinLength());
-    assertEquals(10, stats.getMaxLength());
+    assertEquals(3, stats.lineCount());
+    assertEquals(8.67, stats.averageLength(), 0.01);
+    assertEquals(8, stats.minLength());
+    assertEquals(10, stats.maxLength());
     }
     @Test
     void analyzePatternOccurrence() {
